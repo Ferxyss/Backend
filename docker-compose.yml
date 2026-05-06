@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # 1. Base de Datos
   db:
     image: mysql:8.0
     container_name: db_innovatech
@@ -17,31 +18,39 @@ services:
     volumes:
       - db_data:/var/lib/mysql 
 
-
+  # 2. Microservicio de Ventas
   backend-ventas:
     image: ferxys/innovatech-ventas:latest
     container_name: api_ventas
     restart: always
     ports:
       - "8081:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/innovatech_db?useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=adminpassword
     depends_on:
       - db
     networks:
       - innovatech-network
 
-  
+# 3. Microservicio de Despachos
   backend-despachos:
     image: ferxys/innovatech-despachos:latest
     container_name: api_despachos
     restart: always
     ports:
       - "8082:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/innovatech_db?useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=adminpassword
     depends_on:
       - db
     networks:
       - innovatech-network
 
- 
+# 4. Frontend
   frontend:
     image: ferxys/innovatech-frontend:latest
     container_name: app_frontend
