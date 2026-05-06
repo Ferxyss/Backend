@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # 1. Base de Datos (Cumple con la instancia "Data" que pedía el EP1)
   db:
     image: mysql:8.0
     container_name: db_innovatech
@@ -16,55 +15,48 @@ services:
     networks:
       - innovatech-network
     volumes:
-      - db_data:/var/lib/mysql # <-- ¡Punto clave para la rúbrica! Persistencia de datos mediante Named Volume
+      - db_data:/var/lib/mysql 
 
-  # 2. Microservicio de Ventas
+
   backend-ventas:
-    build: 
-      context: ./Backend/back-Ventas_SpringBoot/Springboot-API-REST
-      dockerfile: Dockerfile
+    image: ferxys/innovatech-ventas:latest
     container_name: api_ventas
     restart: always
     ports:
-      - "8081:8080" # Lo exponemos en el 8081 de tu PC/EC2 para que no choque con el otro
-    depends_on:
-      - db
-    networks:
-      - innovatech-network
-  # 3. Microservicio de Despachos
-  backend-despachos:
-    build: 
-      context: ./Backend/back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
-      dockerfile: Dockerfile
-    container_name: api_despachos
-    restart: always
-    ports:
-      - "8082:8080" # Lo exponemos en el puerto 8082
+      - "8081:8080"
     depends_on:
       - db
     networks:
       - innovatech-network
 
-  # 4. Frontend en React
+  
+  backend-despachos:
+    image: ferxys/innovatech-despachos:latest
+    container_name: api_despachos
+    restart: always
+    ports:
+      - "8082:8080"
+    depends_on:
+      - db
+    networks:
+      - innovatech-network
+
+ 
   frontend:
-    build:
-      context: ./Frontend
-      dockerfile: Dockerfile
+    image: ferxys/innovatech-frontend:latest
     container_name: app_frontend
     restart: always
     ports:
-      - "80:80" # El Front es el único expuesto al puerto 80 (Internet)
+      - "80:80"
     depends_on:
       - backend-ventas
       - backend-despachos
     networks:
       - innovatech-network
 
-# Configuración de la red interna
 networks:
   innovatech-network:
     driver: bridge
 
-# Configuración del volumen persistente
 volumes:
   db_data:
