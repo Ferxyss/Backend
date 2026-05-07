@@ -1,71 +1,23 @@
-version: '3.8'
-
 services:
-  # 1. Base de Datos
-  db:
-    image: mysql:8.0
-    container_name: db_innovatech
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: innovatech_db
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: adminpassword
-    ports:
-      - "3306:3306"
-    networks:
-      - innovatech-network
-    volumes:
-      - db_data:/var/lib/mysql 
 
-  # 2. Microservicio de Ventas
   backend-ventas:
-    image: ferxys/innovatech-ventas:latest
+    image: ferxyss/innovatech-ventas:latest
     container_name: api_ventas
     restart: always
     ports:
-      - "8081:8080"
+      - "8001:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/innovatech_db?useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_URI=jdbc:mysql://10.0.137.164/innovatech_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=admin
       - SPRING_DATASOURCE_PASSWORD=adminpassword
-    depends_on:
-      - db
-    networks:
-      - innovatech-network
 
-# 3. Microservicio de Despachos
   backend-despachos:
-    image: ferxys/innovatech-despachos:latest
+    image: ferxyss/innovatech-despachos:latest
     container_name: api_despachos
     restart: always
     ports:
-      - "8082:8080"
+      - "8002:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/innovatech_db?useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_URI=jdbc:mysql://10.0.137.164/innovatech_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=admin
       - SPRING_DATASOURCE_PASSWORD=adminpassword
-    depends_on:
-      - db
-    networks:
-      - innovatech-network
-
-# 4. Frontend
-  frontend:
-    image: ferxys/innovatech-frontend:latest
-    container_name: app_frontend
-    restart: always
-    ports:
-      - "80:80"
-    depends_on:
-      - backend-ventas
-      - backend-despachos
-    networks:
-      - innovatech-network
-
-networks:
-  innovatech-network:
-    driver: bridge
-
-volumes:
-  db_data:
